@@ -1,0 +1,53 @@
+---
+title: "ROC Humvar"
+format: html
+editor: visual
+---
+
+
+```{r setup, include=FALSE}
+library(randomForest)
+library(readr)
+library(ggplot2)
+library(yardstick)
+library(dplyr)
+#library(caret)
+```
+
+
+
+
+```{r loadData}
+df <- read.csv("humvar.csv")
+dim(df)
+```
+
+```{r Train Random Forest}
+df <- df[sample(2000),]
+bound <- nrow(df)*0.75
+df <- df[sample(nrow(df)),]
+dfTrain <- df[1:bound,]
+dfTest <- df[(bound+1):nrow(df),]
+
+dfTrain$labels <- as.factor(dfTrain$labels)
+dfTest$labels <- as.factor(dfTest$labels)
+
+rf <-randomForest(labels ~.,dfTrain)
+rf
+```
+
+```{r ROC}
+predictions_prob <- predict(rf, newdata = dfTest, type = "prob")
+results_df <- data.frame(
+  true_labels = dfTest$labels,
+  prob_pathogenic = predictions_prob[, "Pathogenic"]
+)
+roc_data <- roc_curve(results_df, truth = true_labels, prob_pathogenic, event_level = "second")
+roc_plot <- autoplot(roc_data)
+
+print(roc_plot)
+```
+
+```{r Area Under Curve}
+
+```

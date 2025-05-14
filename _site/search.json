@@ -1,0 +1,9 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ROC Humvar",
+    "section": "",
+    "text": "Code\ndf &lt;- read.csv(\"humvar.csv\")\ndim(df)\n\n\n[1] 38684    47\n\n\n\n\nCode\ndf &lt;- df[sample(2000),]\nbound &lt;- nrow(df)*0.75\ndf &lt;- df[sample(nrow(df)),]\ndfTrain &lt;- df[1:bound,]\ndfTest &lt;- df[(bound+1):nrow(df),]\n\ndfTrain$labels &lt;- as.factor(dfTrain$labels)\ndfTest$labels &lt;- as.factor(dfTest$labels)\n\nrf &lt;-randomForest(labels ~.,dfTrain)\nrf\n\n\n\nCall:\n randomForest(formula = labels ~ ., data = dfTrain) \n               Type of random forest: classification\n                     Number of trees: 500\nNo. of variables tried at each split: 6\n\n        OOB estimate of  error rate: 8.27%\nConfusion matrix:\n           Benign Pathogenic class.error\nBenign        943         50  0.05035247\nPathogenic     74        433  0.14595661\n\n\n\n\nCode\npredictions_prob &lt;- predict(rf, newdata = dfTest, type = \"prob\")\nresults_df &lt;- data.frame(\n  true_labels = dfTest$labels,\n  prob_pathogenic = predictions_prob[, \"Pathogenic\"]\n)\nroc_data &lt;- roc_curve(results_df, truth = true_labels, prob_pathogenic, event_level = \"second\")\nroc_plot &lt;- autoplot(roc_data)\n\nprint(roc_plot)"
+  }
+]
